@@ -5,9 +5,6 @@
 
 **Python 3.11+** | **FastAPI** | **LanceDB / Qdrant** | **Groq / OpenAI** | **Docker + Render**
 
-**Live demo:** https://mineral-exploration-rag.onrender.com
-*(first load ~30 s cold start on free tier — Render free tier spins down after 15 min)*
-
 ---
 
 ## What it does
@@ -125,10 +122,10 @@ cp .env.example .env
 
 # 5. Start the backend — two equivalent options:
 #    Option A: from inside backend/
-cd backend && python main.py
+cd backend && python main.p
 
 #    Option B: from meis_v6/ root (recommended for dev, enables --reload)
-uvicorn backend.main:app --reload --host 0.0.0.0 --port 8000
+cd backend && uvicorn main:app --host 0.0.0.0 --port 8000
 
 # App UI:   http://localhost:8000
 # API docs: http://localhost:8000/api/docs
