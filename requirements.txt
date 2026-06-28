@@ -12,7 +12,7 @@ qdrant-client==1.12.1
 
 # ── Embeddings & Re-ranking ───────────────────────────────────────────────────
 sentence-transformers==3.3.1
-torch==2.5.1
+torch==2.12.1
 transformers==4.47.1
 
 # ── LLM providers ────────────────────────────────────────────────────────────
