@@ -1,0 +1,84 @@
+GEOLOGICAL SURVEY REPORT
+Mount Centauri Porphyry Project — Phase II Exploration
+Report Number: GEO-2024-042
+Prepared by: Sierra Exploration Ltd.
+Date: June 2024
+
+EXECUTIVE SUMMARY
+
+The Mount Centauri project covers 2,450 hectares in the Central Andes at elevations between 1,200 and 2,100 metres. Phase II exploration has delineated a significant porphyry copper-gold system with an associated epithermal overprint. An inferred mineral resource of 185 Mt grading 0.42 g/t Au and 0.38% Cu (AuEq cutoff 0.2 g/t) has been estimated, containing approximately 2.5 Moz Au and 703 kt Cu. The project warrants advancement to pre-feasibility.
+
+GEOLOGICAL SETTING
+
+Regional Geology
+The project area lies within the Miocene porphyry copper belt of the Central Andes. Host rocks comprise a calc-alkaline magmatic arc sequence including andesites, dacites, rhyolites, and associated intrusive rocks of granodiorite and monzonite composition. The intrusive complex is dated at 12-14 Ma (Miocene) by Re-Os molybdenite geochronology and is part of the regionally extensive Centauri Magmatic Belt.
+
+Structural Geology
+The main structural control is a NNW-trending fault corridor that has channelled hydrothermal fluids and controlled the geometry of the mineralised system. The Central Potassic Core strikes 045° and dips steeply (78°) to the northwest. Secondary NE-trending tensional fractures host quartz-sulphide veins with elevated Au-Ag grades.
+
+MINERALIZATION
+
+Porphyry System
+The central potassic core (Zone MZ-001) hosts the main economic mineralisation. Chalcopyrite, bornite, and molybdenite occur as disseminations and A-type veins within a K-silicate alteration envelope (secondary biotite-K-feldspar-magnetite). Gold occurs as inclusions within chalcopyrite and as free gold in quartz veins. Average grades within the resource shell are 2.85 g/t Au and 0.39% Cu. The highest grades (up to 6.89 g/t Au, 0.72% Cu) occur in the deepest drill intercepts, indicating the system is open at depth.
+
+Epithermal Overprint
+The Northwest Epithermal Corridor (Zone MZ-002) represents a structurally controlled high-sulphidation epithermal system overprinting the upper parts of the porphyry. Silicic and advanced argillic alteration (alunite-kaolinite-pyrophyllite) characterises this zone. Electrum, argentite, and arsenopyrite are the principal ore minerals. Pathfinder elements As-Sb-Te define a 400m strike-length anomaly. Grades reach 12.4 g/t Au and 92.5 g/t Ag.
+
+Alteration Zoning
+Classic porphyry alteration zoning is preserved:
+- Potassic core: biotite + K-feldspar + magnetite + chalcopyrite + bornite
+- Phyllic intermediate: sericite + pyrite + quartz + chalcopyrite (Zone MZ-003)
+- Argillic outer: kaolinite + smectite + pyrite
+- Propylitic peripheral: chlorite + epidote + carbonate
+
+GEOCHEMISTRY
+
+Soil and Rock Geochemistry
+A 200m × 50m soil geochemical survey covering the project area returned a coherent multi-element anomaly of Cu > 200 ppm, Au > 0.05 ppm, and Mo > 10 ppm extending over a 1.2 km × 0.8 km area. The anomaly is centred on the Central Potassic Core and is open to the north.
+
+Lithogeochemistry
+Whole-rock geochemical data indicate the mineralised intrusions are calc-alkaline, high-K dacite-rhyodacite in composition, typical of fertile porphyry systems. Elevated Sr/Y ratios (>50) and La/Yb values (>30) suggest an adakitic affinity, a geochemical signature increasingly recognised as correlating with Cu-Au-rich porphyry systems globally.
+
+DRILLING RESULTS
+
+Summary of Diamond Drilling
+Phase II drilling comprised 28 diamond drill holes totalling 8,450 metres. Significant intercepts include:
+
+DH-001: 25.0m at 2.34 g/t Au, 0.28% Cu from 20m depth
+DH-001: 30.0m at 5.12 g/t Au, 0.42% Cu from 25m depth (best intercept)
+DH-002: 20.0m at 6.89 g/t Au, 0.72% Cu from 25m depth
+DH-003: 18.5m at 1.48 g/t Au, 0.25% Cu from 20m depth
+
+True widths are estimated at 75-85% of drill intercept widths based on structural measurements.
+
+RESOURCE ESTIMATE
+
+An inferred resource estimate has been prepared using ordinary kriging interpolation of composite assay data at 5m intervals:
+
+Classification: Inferred Mineral Resource
+Tonnes: 185 Mt
+Au grade: 0.42 g/t
+Cu grade: 0.38%
+Contained Au: 2,500 koz (2.5 Moz)
+Contained Cu: 703 kt
+Cut-off grade: 0.20 g/t AuEq
+Density: 2.65 t/m³
+
+RECOMMENDATIONS
+
+Based on Phase II results, Sierra Exploration recommends the following work program for Phase III:
+
+1. Priority: Infill diamond drilling at 50m spacing within the Central Potassic Core (budget: USD 4.2M, 12,000m, 40 holes). The resource remains open at depth and along the northern plunge.
+
+2. High Priority: Step-out drilling to test the northern extension of Zone MZ-002 along the NW epithermal corridor (budget: USD 1.8M, 5,000m, 15 holes).
+
+3. Medium Priority: Geophysical surveys (IP-resistivity and CSAMT) to map the deep porphyry geometry and identify additional drill targets beneath the potassic core (budget: USD 0.6M).
+
+4. Metallurgical testwork: Preliminary bottle-roll cyanide leach tests and flotation characterisation on composite samples from the main resource zones (budget: USD 0.4M).
+
+Total recommended Phase III budget: USD 7.0 million
+Timeline: 18-24 months to pre-feasibility level resource
+
+CONCLUSIONS
+
+Mount Centauri exhibits all characteristics of a world-class porphyry Cu-Au deposit. The discovery of high-grade epithermal Au-Ag mineralisation overprinting the porphyry system represents an additional economic opportunity not fully captured in the current resource estimate. Continued investment is strongly warranted.

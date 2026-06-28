@@ -1,0 +1,53 @@
+# ── Secrets — NEVER commit these ──────────────────────────────────────────
+.env
+*.env
+!.env.example
+
+# ── Python cache & build artifacts ────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+*.pyo
+*.pyd
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+*.egg
+
+# ── Virtual environments ───────────────────────────────────────────────────
+.venv/
+venv/
+env/
+ENV/
+
+# ── Test & coverage cache ──────────────────────────────────────────────────
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.mypy_cache/
+
+# ── Runtime data — generated at startup, not source code ──────────────────
+data/lancedb/
+data/uploads/
+data/query_metrics.db
+logs/
+*.log
+
+# ── Dead / empty directories (no feature implemented) ─────────────────────
+data/imagery/
+data/mineral_datasets/
+data/sample_reports/
+
+# ── OS noise ──────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── IDE settings ──────────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+*.swo

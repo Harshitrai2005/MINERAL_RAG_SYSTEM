@@ -1,0 +1,85 @@
+version: "3.9"
+
+# ── Mineral Exploration Intelligence System — Full Local Stack ─────────────
+# Includes: FastAPI backend, Prometheus, Grafana (all free / open source)
+#
+# Usage:
+#   cp .env.example .env && nano .env    # fill in GROQ_API_KEY, API_KEY
+#   docker compose -f docker/docker-compose.yml up --build
+#
+# Endpoints:
+#   App:        http://localhost:8000
+#   API Docs:   http://localhost:8000/api/docs
+#   Metrics:    http://localhost:8000/api/metrics
+#   Prometheus: http://localhost:9090
+#   Grafana:    http://localhost:3000  (admin / admin)
+
+services:
+
+  # ── FastAPI backend ─────────────────────────────────────────────────────
+  meis-backend:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: meis-backend
+    ports:
+      - "8000:8000"
+    env_file:
+      - ../.env
+    volumes:
+      - meis-data:/app/data
+      - meis-logs:/app/logs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+
+  # ── Prometheus ──────────────────────────────────────────────────────────
+  prometheus:
+    image: prom/prometheus:v2.51.2
+    container_name: meis-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ../monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time=7d"
+      - "--web.enable-lifecycle"
+    restart: unless-stopped
+    depends_on:
+      - meis-backend
+
+  # ── Grafana ─────────────────────────────────────────────────────────────
+  grafana:
+    image: grafana/grafana:10.4.2
+    container_name: meis-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_ANALYTICS_REPORTING_ENABLED=false
+      - GF_INSTALL_PLUGINS=
+    volumes:
+      - ../monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ../monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana-data:/var/lib/grafana
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+
+volumes:
+  meis-data:
+    driver: local
+  meis-logs:
+    driver: local
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local

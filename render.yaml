@@ -1,0 +1,45 @@
+# Render Blueprint — deploy with one click via "New > Blueprint"
+# https://render.com/docs/blueprint-spec
+#
+# Free tier: 512MB RAM, shared CPU, spins down after 15min inactivity
+# (first request after spin-down takes ~30s to cold-start the ML models)
+#
+# Prometheus + Grafana run locally via docker-compose.
+# For cloud monitoring use Grafana Cloud free tier (10k metrics/mo).
+
+services:
+  - type: web
+    name: mineral-exploration-rag
+    runtime: docker
+    dockerfilePath: ./docker/Dockerfile
+    dockerContext: .
+    plan: free
+    healthCheckPath: /api/health
+
+    envVars:
+      - key: LLM_PROVIDER
+        value: groq
+      - key: GROQ_API_KEY
+        sync: false          # set in Render dashboard (secret)
+      - key: OPENAI_API_KEY
+        sync: false          # optional fallback
+      - key: API_KEY
+        sync: false          # set in Render dashboard (secret)
+      - key: VECTOR_BACKEND
+        value: qdrant        # Qdrant Cloud free tier for persistence
+      - key: QDRANT_URL
+        sync: false          # set in Render dashboard
+      - key: QDRANT_API_KEY
+        sync: false          # set in Render dashboard (secret)
+      - key: RERANKER
+        value: cross_encoder
+      - key: ALLOWED_ORIGINS
+        sync: false          # e.g. ["https://your-app.onrender.com"]
+      - key: DEBUG
+        value: "false"
+      - key: LOG_LEVEL
+        value: INFO
+      - key: RATE_LIMIT_REQUESTS_PER_MINUTE
+        value: "60"
+      - key: RATE_LIMIT_INGEST_REQUESTS_PER_MINUTE
+        value: "30"

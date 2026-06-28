@@ -1,0 +1,17 @@
+# Prometheus configuration for Mineral Exploration Intelligence System
+# Scrapes the FastAPI /api/metrics endpoint every 15s
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    app: "mineral-exploration-rag"
+    env: "local"
+
+scrape_configs:
+  - job_name: "meis-backend"
+    static_configs:
+      - targets: ["meis-backend:8000"]
+    metrics_path: "/api/metrics"
+    scrape_interval: 15s
+    scrape_timeout: 10s

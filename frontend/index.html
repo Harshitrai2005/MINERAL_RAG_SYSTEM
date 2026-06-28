@@ -1,0 +1,1879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MEIS — Mineral Exploration Intelligence System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
+
+<style>
+/* ── DESIGN TOKENS ──────────────────────────────────────────────────── */
+:root {
+  --bg-0: #07090d;
+  --bg-1: #0d1117;
+  --bg-2: #141b24;
+  --bg-3: #1c2531;
+  --border: rgba(255,255,255,0.07);
+  --border-bright: rgba(255,200,50,0.3);
+  --amber: #f5a623;
+  --amber-dim: rgba(245,166,35,0.15);
+  --amber-glow: rgba(245,166,35,0.06);
+  --copper: #b87333;
+  --teal: #2dd4bf;
+  --teal-dim: rgba(45,212,191,0.12);
+  --red: #ef4444;
+  --text-0: #f0ead6;
+  --text-1: #9ba3af;
+  --text-2: #4b5563;
+  --font-display: 'Syne', sans-serif;
+  --font-mono: 'Space Mono', monospace;
+  --radius: 6px;
+  --transition: 0.18s ease;
+}
+
+/* ── RESET & BASE ────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 15px; }
+body {
+  background: var(--bg-0);
+  color: var(--text-0);
+  font-family: var(--font-mono);
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Topographic texture overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Ccircle cx='50' cy='50' r='45' fill='none' stroke='rgba(245,166,35,0.03)' stroke-width='1'/%3E%3Ccircle cx='50' cy='50' r='35' fill='none' stroke='rgba(245,166,35,0.025)' stroke-width='1'/%3E%3Ccircle cx='50' cy='50' r='25' fill='none' stroke='rgba(245,166,35,0.02)' stroke-width='1'/%3E%3Ccircle cx='50' cy='50' r='15' fill='none' stroke='rgba(245,166,35,0.015)' stroke-width='1'/%3E%3C/svg%3E");
+  background-size: 100px 100px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── LAYOUT ─────────────────────────────────────────────────────────── */
+.shell {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  min-height: 100vh;
+}
+
+/* ── HEADER ─────────────────────────────────────────────────────────── */
+header {
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-1);
+  padding: 0 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 60px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.logo-icon {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #f5a623, #e8860a);
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  animation: pulse-logo 2.5s ease-in-out infinite;
+  box-shadow: 0 0 18px rgba(245,166,35,0.7), 0 0 40px rgba(245,166,35,0.3);
+}
+
+@keyframes pulse-logo {
+  0%, 100% { box-shadow: 0 0 18px rgba(245,166,35,0.7), 0 0 40px rgba(245,166,35,0.3); filter: brightness(1); }
+  50% { box-shadow: 0 0 30px rgba(245,166,35,1), 0 0 60px rgba(245,166,35,0.5), 0 0 80px rgba(245,166,35,0.2); filter: brightness(1.2); }
+}
+
+.logo-text {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.2rem;
+  letter-spacing: 0.08em;
+  color: var(--amber);
+  text-shadow: 0 0 12px rgba(245,166,35,0.8), 0 0 24px rgba(245,166,35,0.4);
+}
+
+.logo-sub {
+  font-size: 0.65rem;
+  color: rgba(245,166,35,0.7);
+  font-family: var(--font-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-shadow: 0 0 8px rgba(245,166,35,0.4);
+}
+
+.header-status {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  font-size: 0.7rem;
+  color: var(--text-2);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--teal);
+  box-shadow: 0 0 8px var(--teal);
+  animation: blink 2s ease infinite;
+  display: inline-block;
+  margin-right: 6px;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.stat-chip {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 3px 10px;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  cursor: pointer;
+  transition: border-color var(--transition);
+}
+.stat-chip:hover { border-color: var(--amber); color: var(--amber); }
+
+/* ── MAIN GRID ───────────────────────────────────────────────────────── */
+.main-grid {
+  display: grid;
+  grid-template-columns: 280px 1fr 300px;
+  height: calc(100vh - 60px);
+  overflow: hidden;
+}
+
+/* ── SIDEBAR LEFT ────────────────────────────────────────────────────── */
+.sidebar-left {
+  border-right: 1px solid var(--border);
+  background: var(--bg-1);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.sidebar-section {
+  padding: 1.25rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.sidebar-label {
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--text-2);
+  margin-bottom: 0.75rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+}
+
+/* Upload zone */
+.upload-zone {
+  border: 1.5px dashed var(--border-bright);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all var(--transition);
+  background: var(--amber-glow);
+  position: relative;
+  overflow: hidden;
+}
+
+.upload-zone:hover, .upload-zone.dragover {
+  border-color: var(--amber);
+  background: var(--amber-dim);
+}
+
+.upload-zone input { display: none; }
+.upload-icon { font-size: 1.5rem; margin-bottom: 0.5rem; }
+.upload-text { font-size: 0.72rem; color: var(--text-1); line-height: 1.5; }
+.upload-text span { color: var(--amber); }
+
+/* Category buttons */
+.cat-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 0.75rem;
+}
+
+.cat-btn {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px 4px;
+  cursor: pointer;
+  text-align: center;
+  font-size: 0.6rem;
+  color: var(--text-1);
+  transition: all var(--transition);
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.cat-btn:hover, .cat-btn.active {
+  border-color: var(--amber);
+  color: var(--amber);
+  background: var(--amber-dim);
+}
+
+.cat-btn .cat-icon { font-size: 1rem; display: block; margin-bottom: 4px; }
+
+/* Query mode */
+.mode-select {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mode-btn {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all var(--transition);
+  font-family: var(--font-mono);
+}
+
+.mode-btn:hover, .mode-btn.active {
+  border-color: var(--amber);
+  background: var(--amber-dim);
+}
+
+.mode-btn.active .mode-dot {
+  background: var(--amber);
+  box-shadow: 0 0 6px var(--amber);
+}
+
+.mode-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-2);
+  flex-shrink: 0;
+}
+
+.mode-label {
+  font-size: 0.7rem;
+  color: var(--text-1);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.mode-btn.active .mode-label { color: var(--amber); }
+
+/* Collection stats */
+.stat-bars { display: flex; flex-direction: column; gap: 8px; }
+.stat-bar-item { display: flex; flex-direction: column; gap: 4px; }
+.stat-bar-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.62rem;
+  color: var(--text-1);
+}
+.stat-bar-track {
+  height: 4px;
+  background: var(--bg-3);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.stat-bar-fill {
+  height: 100%;
+  background: var(--amber);
+  border-radius: 2px;
+  transition: width 0.6s ease;
+}
+.stat-bar-fill.teal { background: var(--teal); }
+.stat-bar-fill.copper { background: var(--copper); }
+
+/* Quick examples */
+.quick-btns { display: flex; flex-direction: column; gap: 6px; }
+.quick-btn {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px 10px;
+  cursor: pointer;
+  font-size: 0.65rem;
+  color: var(--text-1);
+  text-align: left;
+  transition: all var(--transition);
+  font-family: var(--font-mono);
+  line-height: 1.4;
+}
+.quick-btn:hover { border-color: var(--teal); color: var(--teal); }
+.quick-btn::before { content: '▸ '; color: var(--amber); }
+
+/* ── CENTER PANEL ────────────────────────────────────────────────────── */
+.center-panel {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--bg-0);
+}
+
+/* Chat area */
+.chat-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  scroll-behavior: smooth;
+}
+
+/* Empty state */
+.empty-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 3rem;
+  animation: fade-in 0.6s ease;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.empty-crystal {
+  width: 80px;
+  height: 80px;
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.empty-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.4rem;
+  color: var(--text-0);
+  margin-bottom: 0.5rem;
+}
+
+.empty-sub {
+  font-size: 0.75rem;
+  color: var(--text-2);
+  max-width: 380px;
+  line-height: 1.7;
+}
+
+/* Messages */
+.message {
+  display: flex;
+  gap: 1rem;
+  animation: msg-in 0.3s ease;
+}
+
+@keyframes msg-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.message.user { flex-direction: row-reverse; }
+
+.msg-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+}
+
+.msg-avatar.user { background: var(--amber-dim); color: var(--amber); border: 1px solid var(--amber); }
+.msg-avatar.ai { background: var(--teal-dim); color: var(--teal); border: 1px solid var(--teal); }
+
+.msg-bubble {
+  max-width: 75%;
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  font-size: 0.82rem;
+  line-height: 1.75;
+  position: relative;
+}
+
+.message.user .msg-bubble {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  color: var(--text-0);
+}
+
+.message.ai .msg-bubble {
+  background: var(--bg-1);
+  border: 1px solid var(--border);
+  color: var(--text-0);
+  border-left: 3px solid var(--teal);
+}
+
+.msg-meta {
+  font-size: 0.6rem;
+  color: var(--text-2);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.msg-sources {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.source-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.62rem;
+  color: var(--text-2);
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 4px 10px;
+}
+
+.source-chip .score {
+  color: var(--amber);
+  font-weight: 700;
+  margin-left: auto;
+}
+
+/* Thinking indicator */
+.thinking-dots {
+  display: flex;
+  gap: 5px;
+  padding: 12px 16px;
+  background: var(--bg-1);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--teal);
+  border-radius: var(--radius);
+  width: fit-content;
+}
+
+.thinking-dots span {
+  width: 6px;
+  height: 6px;
+  background: var(--teal);
+  border-radius: 50%;
+  animation: dot-bounce 1.2s ease infinite;
+}
+
+.thinking-dots span:nth-child(2) { animation-delay: 0.2s; }
+.thinking-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes dot-bounce {
+  0%, 100% { transform: translateY(0); opacity: 0.5; }
+  50% { transform: translateY(-6px); opacity: 1; }
+}
+
+/* ── INPUT BAR ───────────────────────────────────────────────────────── */
+.input-bar {
+  border-top: 1px solid var(--border);
+  background: var(--bg-1);
+  padding: 1rem 1.25rem;
+}
+
+.input-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+}
+
+.input-wrap {
+  flex: 1;
+  position: relative;
+}
+
+#query-input {
+  width: 100%;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-0);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  padding: 12px 16px;
+  resize: none;
+  outline: none;
+  transition: border-color var(--transition);
+  min-height: 48px;
+  max-height: 120px;
+  line-height: 1.5;
+}
+
+#query-input:focus { border-color: var(--amber); }
+#query-input::placeholder { color: var(--text-2); }
+
+.send-btn {
+  background: var(--amber);
+  border: none;
+  border-radius: var(--radius);
+  color: #07090d;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.75rem;
+  padding: 12px 18px;
+  cursor: pointer;
+  transition: all var(--transition);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  height: 48px;
+}
+
+.send-btn:hover { background: #f9bc41; transform: translateY(-1px); }
+.send-btn:active { transform: translateY(0); }
+.send-btn:disabled { background: var(--bg-3); color: var(--text-2); cursor: not-allowed; transform: none; }
+
+.input-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 6px;
+  font-size: 0.62rem;
+  color: var(--text-2);
+}
+
+.mode-indicator {
+  background: var(--amber-dim);
+  border: 1px solid var(--amber);
+  color: var(--amber);
+  border-radius: 3px;
+  padding: 2px 8px;
+  font-size: 0.58rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* ── RIGHT PANEL ─────────────────────────────────────────────────────── */
+.sidebar-right {
+  border-left: 1px solid var(--border-bright);
+  background: var(--bg-1);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  transition: width 0.25s ease;
+  position: relative;
+}
+
+.sidebar-right.expanded {
+  width: 520px;
+}
+
+.expand-btn {
+  position: absolute;
+  top: 10px;
+  right: 8px;
+  background: transparent;
+  border: 1px solid rgba(245,166,35,0.3);
+  border-radius: 3px;
+  color: var(--amber);
+  cursor: pointer;
+  font-size: 0.65rem;
+  padding: 2px 6px;
+  font-family: var(--font-mono);
+  z-index: 10;
+  transition: all var(--transition);
+  text-shadow: 0 0 6px rgba(245,166,35,0.7);
+}
+.expand-btn:hover {
+  border-color: var(--amber);
+  background: var(--amber-dim);
+  box-shadow: 0 0 8px rgba(245,166,35,0.4);
+}
+
+/* v6.1 (Issue #6): right-sidebar icons/text were rendering with low-contrast
+   or undefined colors in some browsers/zoom levels, making them blend into
+   the dark background. Fix: explicit bright colors + a soft glow on every
+   icon/tab/badge in this panel so nothing is ever invisible against bg-1. */
+.rpanel-tab {
+  text-shadow: 0 0 6px currentColor;
+  transition: color var(--transition), text-shadow var(--transition);
+}
+.rpanel-tab.active,
+.rpanel-tab[style*="amber"] {
+  text-shadow: 0 0 10px rgba(245,166,35,0.9), 0 0 2px rgba(245,166,35,0.6);
+}
+
+.dtype-tab {
+  text-shadow: 0 0 8px rgba(45,212,191,0.9), 0 0 16px rgba(45,212,191,0.5);
+}
+.dtype-tab.active {
+  text-shadow: 0 0 10px rgba(255,201,60,1), 0 0 20px rgba(255,201,60,0.7);
+}
+
+#doc-count-badge {
+  text-shadow: 0 0 6px rgba(245,166,35,0.7);
+}
+
+.glow-icon {
+  filter: drop-shadow(0 0 4px rgba(245,166,35,0.8));
+}
+
+#source-scope-select {
+  text-shadow: 0 0 6px rgba(245,166,35,0.6);
+}
+#source-scope-select option {
+  background: var(--bg-2);
+  color: var(--amber);
+}
+
+/* Mineral zone indicator */
+.zone-indicator {
+  padding: 1.25rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.zone-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 0.75rem;
+}
+
+.zone-card {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px;
+  text-align: center;
+  transition: all var(--transition);
+}
+
+.zone-card.active { border-color: var(--amber); background: var(--amber-dim); }
+.zone-card.detected { border-color: var(--teal); background: var(--teal-dim); }
+
+.zone-card-icon { font-size: 1.1rem; }
+.zone-card-name { font-size: 0.6rem; color: var(--text-1); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.06em; }
+
+/* Upload history */
+.upload-history { display: flex; flex-direction: column; gap: 6px; }
+
+.history-item {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  animation: msg-in 0.3s ease;
+}
+
+.history-item .file-icon { font-size: 1rem; flex-shrink: 0; filter: drop-shadow(0 0 4px rgba(245,166,35,0.6)); }
+.history-item .file-info { flex: 1; min-width: 0; }
+.history-item .file-name {
+  font-size: 0.68rem;
+  color: var(--text-0);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.history-item .file-meta { font-size: 0.58rem; color: var(--teal); margin-top: 2px; text-shadow: 0 0 5px rgba(45,212,191,0.5); }
+.history-item .file-chunks {
+  font-size: 0.6rem;
+  color: var(--amber);
+  font-weight: 700;
+  white-space: nowrap;
+  text-shadow: 0 0 6px rgba(245,166,35,0.6);
+}
+
+/* Alteration legend */
+.alteration-legend { padding: 1.25rem; }
+.legend-items { display: flex; flex-direction: column; gap: 8px; margin-top: 0.75rem; }
+.legend-item { display: flex; align-items: center; gap: 10px; }
+.legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+.legend-label { font-size: 0.65rem; color: var(--text-1); }
+.legend-type { font-size: 0.58rem; color: var(--text-2); margin-left: auto; text-transform: uppercase; }
+
+/* ── SCROLLBAR ───────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--bg-3); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--amber); }
+
+/* ── TOAST ───────────────────────────────────────────────────────────── */
+#toast {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 20px;
+  font-size: 0.75rem;
+  color: var(--text-0);
+  z-index: 999;
+  transition: all 0.3s ease;
+  opacity: 0;
+  transform: translateY(10px);
+  pointer-events: none;
+  max-width: 320px;
+}
+#toast.show { opacity: 1; transform: translateY(0); }
+#toast.success { border-color: var(--teal); }
+#toast.error { border-color: var(--red); }
+
+/* ── PROGRESS BAR ────────────────────────────────────────────────────── */
+.progress-bar {
+  height: 3px;
+  background: var(--amber);
+  width: 0%;
+  transition: width 0.4s ease;
+  border-radius: 2px;
+  margin-top: 6px;
+}
+
+/* ── RESPONSIVE ──────────────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .main-grid { grid-template-columns: 240px 1fr; }
+  .sidebar-right { display: none; }
+}
+
+/* ── MOBILE BOTTOM NAV ─────────────────────────────────────────────── */
+.mobile-nav {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 56px;
+  background: var(--bg-1);
+  border-top: 1px solid var(--border-bright);
+  z-index: 200;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0 8px;
+}
+.mobile-nav-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  background: transparent;
+  border: none;
+  color: var(--text-1);
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 0.5rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 6px 12px;
+  border-radius: var(--radius);
+  transition: all var(--transition);
+  flex: 1;
+}
+.mobile-nav-btn .mnav-icon { font-size: 1.2rem; line-height: 1; }
+.mobile-nav-btn.active { color: var(--amber); background: var(--amber-dim); }
+.mobile-nav-btn:hover { color: var(--amber); }
+
+/* Mobile drawer */
+.mobile-drawer {
+  display: none;
+  position: fixed;
+  inset: 60px 0 56px 0;
+  background: var(--bg-1);
+  z-index: 150;
+  overflow-y: auto;
+  flex-direction: column;
+  border-top: 1px solid var(--border);
+  padding-bottom: 8px;
+}
+.mobile-drawer.open { display: flex; }
+
+@media (max-width: 768px) {
+  /* Grid: single full column, no sidebars */
+  .main-grid {
+    grid-template-columns: 1fr;
+    height: calc(100vh - 60px - 56px); /* header + bottom nav */
+  }
+  .sidebar-left  { display: none; }
+  .sidebar-right { display: none; }
+
+  /* Center panel fills full height */
+  .center-panel { height: 100%; }
+
+  /* Chat area shrinks to make room */
+  .chat-area { padding-bottom: 0.5rem; }
+
+  /* Input bar glued above bottom nav */
+  .input-bar {
+    padding: 0.6rem 0.75rem 0.5rem;
+    position: sticky;
+    bottom: 0;
+  }
+
+  /* Shrink send button on small screens */
+  .send-btn { padding: 10px 12px; font-size: 0.7rem; }
+
+  /* Header: hide subtitle on very small screens */
+  .logo-sub { display: none; }
+
+  /* Header status: hide API docs chip */
+  .header-status .stat-chip:last-child { display: none; }
+
+  /* Bottom nav visible */
+  .mobile-nav { display: flex; }
+
+  /* Message bubbles full width */
+  .msg-bubble { max-width: 98% !important; }
+}
+
+#query-input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 500;
+}
+.del-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--teal);
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 2px 6px;
+  border-radius: 3px;
+  transition: all var(--transition);
+  flex-shrink: 0;
+  text-shadow: 0 0 5px rgba(45,212,191,0.5);
+}
+.del-btn:hover {
+  border-color: var(--red);
+  color: var(--red);
+  background: rgba(239,68,68,0.1);
+}
+.del-type-btn {
+  flex: 1;
+  padding: 3px 2px;
+  background: rgba(255,40,40,0.12);
+  border: 1px solid #ff3333;
+  border-radius: 3px;
+  color: #ff3333;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 0.52rem;
+  font-weight: 700;
+  text-shadow: 0 0 8px rgba(255,51,51,1), 0 0 18px rgba(255,51,51,0.8), 0 0 30px rgba(255,51,51,0.4);
+  box-shadow: 0 0 8px rgba(255,51,51,0.4), inset 0 0 6px rgba(255,51,51,0.1);
+  animation: red-pulse 2s ease-in-out infinite;
+  transition: all var(--transition);
+}
+.del-type-btn:hover {
+  background: rgba(255,40,40,0.25);
+  border-color: #ff5555;
+  box-shadow: 0 0 16px rgba(255,51,51,0.8), 0 0 30px rgba(255,51,51,0.4), inset 0 0 10px rgba(255,51,51,0.2);
+  text-shadow: 0 0 12px rgba(255,51,51,1), 0 0 24px rgba(255,51,51,1), 0 0 40px rgba(255,51,51,0.6);
+  transform: translateY(-1px);
+}
+@keyframes red-pulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(255,51,51,0.4), inset 0 0 6px rgba(255,51,51,0.1); }
+  50% { box-shadow: 0 0 16px rgba(255,51,51,0.7), 0 0 28px rgba(255,51,51,0.3), inset 0 0 8px rgba(255,51,51,0.15); }
+}
+
+</style>
+</head>
+
+<body>
+<div class="shell">
+
+<!-- ── HEADER ─────────────────────────────────────────────────────────── -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">⬡</div>
+    <div>
+      <div class="logo-text">MEIS</div>
+      <div class="logo-sub" style="color: #ffffff; font-weight: 700;">Mineral Exploration Intelligence System</div>
+    </div>
+  </div>
+  <div class="header-status">
+    <span style="color: #ffffff; font-weight: 700;"><span class="status-dot" ></span>System Online</span>
+    <div class="stat-chip" id="total-docs-chip" onclick="fetchStats()" style="color: #ffffff; font-weight: 700;">⬡ 0 Chunks</div>
+    <div class="stat-chip" onclick="window.open('/api/docs', '_blank')" style="color: #ffffff; font-weight: 700;">API Docs ↗</div>
+  </div>
+</header>
+
+<!-- ── MOBILE DRAWERS ───────────────────────────────────────────────────── -->
+<div class="mobile-drawer" id="mobile-drawer-upload">
+  <div class="sidebar-section" style="padding:1rem;">
+    <div class="sidebar-label" style="color:#fff;font-weight:700;">Ingest Data</div>
+    <div class="upload-zone" onclick="document.getElementById('file-input-mobile').click()" style="padding:1rem;margin-bottom:0.75rem;">
+      <input type="file" id="file-input-mobile" accept=".pdf,.txt,.csv,.json" />
+      <div class="upload-icon">⬡</div>
+      <div class="upload-text" style="color:#fff;font-weight:700;">Tap to browse geological files</div>
+    </div>
+    <div class="cat-buttons">
+      <button class="cat-btn active" data-cat="report" onclick="selectCategory('report',this)" style="color:#fff;font-weight:700;"><span class="cat-icon">📄</span>Report</button>
+      <button class="cat-btn" data-cat="dataset" onclick="selectCategory('dataset',this)" style="color:#fff;font-weight:700;"><span class="cat-icon">📊</span>Dataset</button>
+    </div>
+  </div>
+  <div class="sidebar-section" style="padding:1rem;">
+    <div class="sidebar-label" style="color:#fff;font-weight:700;">Quick Queries</div>
+    <div class="quick-btns">
+      <button class="quick-btn" onclick="mobileQuery('What minerals are associated with the main fault zone?')" style="color:#fff;font-weight:700;">Fault zone mineral associations</button>
+      <button class="quick-btn" onclick="mobileQuery('Identify potential Au-Cu porphyry targets from the geochemical data')" style="color:#fff;font-weight:700;">Au-Cu porphyry targets</button>
+      <button class="quick-btn" onclick="mobileQuery('What are the highest grade drill intercepts in the dataset?')" style="color:#fff;font-weight:700;">Highest grade intercepts</button>
+      <button class="quick-btn" onclick="mobileQuery('Summarize exploration recommendations from all available data')" style="color:#fff;font-weight:700;">Exploration recommendations</button>
+    </div>
+  </div>
+</div>
+
+<div class="mobile-drawer" id="mobile-drawer-stats">
+  <div class="sidebar-section" style="padding:1rem;">
+    <div class="sidebar-label" style="color:#fff;font-weight:700;">Knowledge Base</div>
+    <div class="stat-bars">
+      <div class="stat-bar-item">
+        <div class="stat-bar-label"><span style="color:#fff;font-weight:700;">Geological Reports</span><span id="geo-count-m" style="color:#fff;font-weight:700;">0</span></div>
+        <div class="stat-bar-track"><div class="stat-bar-fill" id="geo-bar-m" style="width:0%"></div></div>
+      </div>
+      <div class="stat-bar-item">
+        <div class="stat-bar-label"><span style="color:#fff;font-weight:700;">Mineral Datasets</span><span id="min-count-m" style="color:#fff;font-weight:700;">0</span></div>
+        <div class="stat-bar-track"><div class="stat-bar-fill teal" id="min-bar-m" style="width:0%"></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="sidebar-section" style="padding:1rem;">
+    <div class="sidebar-label" style="color:#fff;font-weight:700;">Query Mode</div>
+    <div class="mode-select">
+      <button class="mode-btn active" data-mode="all" onclick="selectMode('all',this)"><span class="mode-dot"></span><span class="mode-label" style="color:#fff;font-weight:700;">All Collections</span></button>
+      <button class="mode-btn" data-mode="geological" onclick="selectMode('geological',this)"><span class="mode-dot"></span><span class="mode-label" style="color:#fff;font-weight:700;">Geological Reports</span></button>
+      <button class="mode-btn" data-mode="mineral" onclick="selectMode('mineral',this)"><span class="mode-dot"></span><span class="mode-label" style="color:#fff;font-weight:700;">Mineral Datasets</span></button>
+      <button class="mode-btn" data-mode="decision" onclick="selectMode('decision',this)"><span class="mode-dot"></span><span class="mode-label" style="color:#fff;font-weight:700;">Decision Support</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MOBILE BOTTOM NAV ─────────────────────────────────────────────── -->
+<nav class="mobile-nav">
+  <button class="mobile-nav-btn active" id="mnav-chat" onclick="mobileTab('chat')">
+    <span class="mnav-icon">💬</span>Chat
+  </button>
+  <button class="mobile-nav-btn" id="mnav-upload" onclick="mobileTab('upload')">
+    <span class="mnav-icon">⬆</span>Upload
+  </button>
+  <button class="mobile-nav-btn" id="mnav-stats" onclick="mobileTab('stats')">
+    <span class="mnav-icon">📊</span>Stats
+  </button>
+</nav>
+
+<!-- ── MAIN GRID ──────────────────────────────────────────────────────── -->
+<div class="main-grid">
+
+  <!-- LEFT SIDEBAR -->
+  <aside class="sidebar-left">
+
+    <!-- Upload -->
+    <div class="sidebar-section">
+      <div class="sidebar-label" style="color: #ffffff; font-weight: 700;">Ingest Data</div>
+      <div class="upload-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+        <input type="file" id="file-input" accept=".pdf,.txt,.csv,.json" />
+        <div class="upload-icon">⬡</div>
+        <div class="upload-text" style="color: #ffffff; font-weight: 700;">Drop geological files here<br /><span >Click to browse</span></div>
+        <div class="progress-bar" id="upload-progress"></div>
+      </div>
+      <div class="cat-buttons">
+        <button class="cat-btn active" data-cat="report" onclick="selectCategory('report', this)" style="color: #ffffff; font-weight: 700;">
+          <span class="cat-icon" >📄</span>Report
+        </button>
+        <button class="cat-btn" data-cat="dataset" onclick="selectCategory('dataset', this)" style="color: #ffffff; font-weight: 700;">
+          <span class="cat-icon">📊</span>Dataset
+        </button>
+
+      </div>
+    </div>
+
+    <!-- Query Mode -->
+    <div class="sidebar-section">
+      <div class="sidebar-label" style="color: #ffffff; font-weight: 700;">Query Mode</div>
+      <div class="mode-select">
+        <button class="mode-btn active" data-mode="all" onclick="selectMode('all', this)">
+          <span class="mode-dot"></span>
+          <span class="mode-label" style="color: #ffffff; font-weight: 700;" >All Collections</span>
+        </button>
+        <button class="mode-btn" data-mode="geological" onclick="selectMode('geological', this)">
+          <span class="mode-dot"></span>
+          <span class="mode-label" style="color: #ffffff; font-weight: 700;">Geological Reports</span>
+        </button>
+        <button class="mode-btn" data-mode="mineral" onclick="selectMode('mineral', this)">
+          <span class="mode-dot"></span>
+          <span class="mode-label" style="color: #ffffff; font-weight: 700;">Mineral Datasets</span>
+        </button>
+
+        <button class="mode-btn" data-mode="decision" onclick="selectMode('decision', this)">
+          <span class="mode-dot"></span>
+          <span class="mode-label" style="color: #ffffff; font-weight: 700;">Decision Support</span>
+        </button>
+      </div>
+
+      <!-- v6.1 (Issue #3): explicit dataset scope. When set to a specific
+           file, the backend hard-filters retrieval to that file only — no
+           similarity scores from other reports/datasets can appear. -->
+      <div style="margin-top:10px;">
+        <div class="sidebar-label" style="color: #ffffff; font-weight: 700; font-size:0.6rem;">Search Scope</div>
+        <select id="source-scope-select" onchange="onScopeChange(this)"
+          style="width:100%;margin-top:6px;background:var(--bg-2);border:1px solid var(--amber);
+                 color:var(--amber);font-family:var(--font-mono);font-size:0.65rem;font-weight:700;
+                 padding:7px 8px;border-radius:var(--radius);cursor:pointer;
+                 box-shadow:0 0 8px rgba(245,166,35,0.25);">
+          <option value="">🌐 All Files (no scope)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- KB Stats -->
+    <div class="sidebar-section">
+      <div class="sidebar-label" style="color: #ffffff; font-weight: 700;">Knowledge Base</div>
+      <div class="stat-bars" id="stat-bars">
+        <div class="stat-bar-item">
+          <div class="stat-bar-label">
+            <span style="color: #ffffff; font-weight: 700;">Geological Reports</span>
+            <span id="geo-count" style="color: #ffffff; font-weight: 700;">0</span>
+          </div>
+          <div class="stat-bar-track">
+            <div class="stat-bar-fill" id="geo-bar" style="width:0%"></div>
+          </div>
+        </div>
+        <div class="stat-bar-item">
+          <div class="stat-bar-label">
+            <span style="color: #ffffff; font-weight: 700;">Mineral Datasets</span>
+            <span id="min-count" style="color: #ffffff; font-weight: 700;">0</span>
+          </div>
+          <div class="stat-bar-track">
+            <div class="stat-bar-fill teal" id="min-bar" style="width:0%"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Quick Queries -->
+    <div class="sidebar-section">
+      <div class="sidebar-label" style="color: #ffffff; font-weight: 700;">Quick Queries</div>
+      <div class="quick-btns">
+        <button class="quick-btn" onclick="setQuery('What minerals are associated with the main fault zone?')" style="color: #ffffff; font-weight: 700;">Fault zone mineral associations</button>
+        <button class="quick-btn" onclick="setQuery('Identify potential Au-Cu porphyry targets from the geochemical data')" style="color: #ffffff; font-weight: 700;">Au-Cu porphyry targets</button>
+
+        <button class="quick-btn" onclick="setQuery('What are the highest grade drill intercepts in the dataset?')" style="color: #ffffff; font-weight: 700;">Highest grade intercepts</button>
+        <button class="quick-btn" onclick="setQuery('Summarize exploration recommendations from all available data')" style="color: #ffffff; font-weight: 700;">Exploration recommendations</button>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- CENTER PANEL -->
+  <main class="center-panel">
+    <div class="chat-area" id="chat-area">
+      <div class="empty-state" id="empty-state">
+        <svg class="empty-crystal" viewBox="0 0 80 80" fill="none">
+          <polygon points="40,5 70,20 70,60 40,75 10,60 10,20" fill="none" stroke="rgba(245,166,35,0.4)" stroke-width="1.5"/>
+          <polygon points="40,15 62,25 62,55 40,65 18,55 18,25" fill="none" stroke="rgba(245,166,35,0.25)" stroke-width="1"/>
+          <polygon points="40,25 54,32 54,50 40,57 26,50 26,32" fill="rgba(245,166,35,0.08)" stroke="rgba(245,166,35,0.5)" stroke-width="1.5"/>
+          <line x1="40" y1="5" x2="40" y2="75" stroke="rgba(245,166,35,0.15)" stroke-width="1"/>
+          <line x1="10" y1="20" x2="70" y2="60" stroke="rgba(245,166,35,0.1)" stroke-width="1"/>
+          <line x1="70" y1="20" x2="10" y2="60" stroke="rgba(245,166,35,0.1)" stroke-width="1"/>
+        </svg>
+        <div class="empty-title">Geological Intelligence Ready</div>
+        <div class="empty-sub" style="color: #ffffff; font-weight: 700;">Upload geological survey reports (PDF) or geochemical datasets (CSV/JSON) — then query across all of it in plain language.</div>
+      </div>
+    </div>
+
+    <div class="input-bar" style="color: #ffffff; font-weight: 700;">
+      <div class="input-row">
+        <div class="input-wrap" >
+          <textarea style="color: #ffffff; font-weight: 700;"
+            id="query-input"
+            placeholder="Ask about rock formations, mineral zones, geochemical anomalies..."
+            rows="1"
+            onkeydown="handleKeyDown(event)"
+            oninput="autoResize(this)"
+          ></textarea>
+        </div>
+        <button class="send-btn" id="send-btn" onclick="sendQuery()">Analyze ▸</button>
+      </div>
+      <div class="input-meta">
+        <span style="color: #ffffff; font-weight: 700;">ENTER to send · SHIFT+ENTER for newline</span>
+        <span class="mode-indicator" id="mode-label">MODE: ALL</span>
+      </div>
+    </div>
+  </main>
+
+  <!-- RIGHT SIDEBAR — v6: Metrics Dashboard + Document Browser -->
+  <aside class="sidebar-right" id="sidebar-right">
+    <button class="expand-btn" id="expand-btn" onclick="toggleSidebar()" title="Expand / Collapse">⇔</button>
+
+    <!-- Tab Switcher -->
+    <div style="display:flex;border-bottom:1px solid var(--border);flex-shrink:0;padding-right:32px;">
+      <button class="rpanel-tab active" id="tab-docs" onclick="switchRTab('docs',this)" style="flex:1;padding:10px 4px;background:transparent;border:none;color:var(--amber);cursor:pointer;font-family:var(--font-mono);font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;border-bottom:2px solid var(--amber);">📁 Documents</button>
+      <button class="rpanel-tab" id="tab-metrics" onclick="switchRTab('metrics',this)" style="flex:1;padding:10px 4px;background:transparent;border:none;color:var(--text-1);cursor:pointer;font-family:var(--font-mono);font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;border-bottom:2px solid transparent;">📊 Metrics</button>
+    </div>
+
+    <!-- DOCUMENTS PANEL -->
+    <div id="rpanel-docs" style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
+      <!-- Section tabs: PDF / CSV / JSON -->
+      <div style="display:flex;gap:4px;padding:10px 12px 0;flex-shrink:0;">
+        <button class="dtype-tab active" data-dtype="all" onclick="filterDocType('all',this)" style="flex:1;padding:5px 2px;background:var(--amber-dim);border:1px solid var(--amber);border-radius:3px;color:#ffc93c;cursor:pointer;font-family:var(--font-mono);font-size:0.58rem;font-weight:700;">ALL</button>
+        <button class="dtype-tab" data-dtype="pdf" onclick="filterDocType('pdf',this)" style="flex:1;padding:5px 2px;background:rgba(45,212,191,0.08);border:1px solid rgba(45,212,191,0.4);border-radius:3px;color:#2eecd4;cursor:pointer;font-family:var(--font-mono);font-size:0.58rem;font-weight:700;">PDF</button>
+        <button class="dtype-tab" data-dtype="csv" onclick="filterDocType('csv',this)" style="flex:1;padding:5px 2px;background:rgba(45,212,191,0.08);border:1px solid rgba(45,212,191,0.4);border-radius:3px;color:#2eecd4;cursor:pointer;font-family:var(--font-mono);font-size:0.58rem;font-weight:700;">CSV</button>
+        <button class="dtype-tab" data-dtype="json" onclick="filterDocType('json',this)" style="flex:1;padding:5px 2px;background:rgba(45,212,191,0.08);border:1px solid rgba(45,212,191,0.4);border-radius:3px;color:#2eecd4;cursor:pointer;font-family:var(--font-mono);font-size:0.58rem;font-weight:700;">JSON</button>
+        <button class="dtype-tab" data-dtype="txt" onclick="filterDocType('txt',this)" style="flex:1;padding:5px 2px;background:rgba(45,212,191,0.08);border:1px solid rgba(45,212,191,0.4);border-radius:3px;color:#2eecd4;cursor:pointer;font-family:var(--font-mono);font-size:0.58rem;font-weight:700;">TXT</button>
+      </div>
+      <div style="padding:6px 12px 4px;flex-shrink:0;">
+        <span style="font-size:0.58rem;color:#ffc93c;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;text-shadow:0 0 8px rgba(255,201,60,0.9),0 0 16px rgba(255,201,60,0.5);">INDEXED FILES</span>
+        <span id="doc-count-badge" style="font-size:0.58rem;color:var(--amber);margin-left:8px;font-weight:700;text-shadow:0 0 8px rgba(245,166,35,0.8);"></span>
+        <button onclick="loadIndexedFiles()" style="float:right;background:transparent;border:none;color:var(--teal);cursor:pointer;font-size:0.65rem;text-shadow:0 0 5px rgba(45,212,191,0.6);">↻ Refresh</button>
+      </div>
+      <!-- Delete All by type buttons -->
+      <div style="display:flex;gap:4px;padding:0 12px 6px;flex-shrink:0;">
+        <span style="font-size:0.52rem;color:#ffc93c;font-weight:700;line-height:22px;white-space:nowrap;text-shadow:0 0 6px rgba(255,201,60,0.8);">Delete all:</span>
+        <button onclick="deleteAllByType('pdf')"   class="del-type-btn" title="Delete all PDF reports">PDF</button>
+        <button onclick="deleteAllByType('csv')"   class="del-type-btn" title="Delete all CSV datasets">CSV</button>
+        <button onclick="deleteAllByType('json')"  class="del-type-btn" title="Delete all JSON datasets">JSON</button>
+        <button onclick="deleteAllByType('txt')"   class="del-type-btn" title="Delete all TXT reports">TXT</button>
+      </div>
+      <div class="upload-history" id="upload-history" style="flex:1;overflow-y:auto;padding:0 8px 8px;">
+        <div id="no-files-msg" style="font-size:0.65rem;color:var(--text-1);text-align:center;padding:1.5rem 1rem;">No files ingested yet.</div>
+      </div>
+    </div>
+
+    <!-- METRICS PANEL -->
+    <div id="rpanel-metrics" style="flex:1;display:none;flex-direction:column;overflow:hidden;">
+      <div style="padding:10px 12px;flex-shrink:0;border-bottom:1px solid rgba(245,166,35,0.2);">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <span style="font-size:0.58rem;color:#ffc93c;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;text-shadow:0 0 10px rgba(255,201,60,1),0 0 22px rgba(255,201,60,0.7);">Query Metrics (Persistent)</span>
+          <div style="display:flex;gap:4px;">
+            <button onclick="loadMetrics()" style="background:transparent;border:1px solid rgba(45,212,191,0.4);color:var(--teal);cursor:pointer;font-size:0.58rem;padding:3px 8px;border-radius:3px;font-family:var(--font-mono);text-shadow:0 0 5px rgba(45,212,191,0.6);">↻</button>
+            <button onclick="clearAllMetrics()" style="background:transparent;border:1px solid rgba(239,68,68,0.4);color:var(--red);cursor:pointer;font-size:0.58rem;padding:3px 8px;border-radius:3px;font-family:var(--font-mono);text-shadow:0 0 5px rgba(239,68,68,0.6);">Clear All</button>
+          </div>
+        </div>
+        <!-- Summary stats row -->
+        <div id="metrics-summary" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px;">
+          <div style="background:var(--bg-2);border:1px solid rgba(245,166,35,0.3);border-radius:4px;padding:6px;text-align:center;">
+            <div id="ms-total" style="font-size:1.1rem;color:var(--amber);font-weight:700;text-shadow:0 0 10px rgba(245,166,35,0.9),0 0 20px rgba(245,166,35,0.4);">0</div>
+            <div style="font-size:0.52rem;color:#ffc93c;font-weight:700;letter-spacing:0.08em;text-shadow:0 0 8px rgba(255,201,60,1),0 0 16px rgba(255,201,60,0.6);">TOTAL QUERIES</div>
+          </div>
+          <div style="background:var(--bg-2);border:1px solid rgba(45,212,191,0.3);border-radius:4px;padding:6px;text-align:center;">
+            <div id="ms-avg-lat" style="font-size:1.1rem;color:var(--teal);font-weight:700;text-shadow:0 0 10px rgba(45,212,191,0.9),0 0 20px rgba(45,212,191,0.4);">—</div>
+            <div style="font-size:0.52rem;color:#2eecd4;font-weight:700;letter-spacing:0.08em;text-shadow:0 0 8px rgba(46,236,212,1),0 0 16px rgba(46,236,212,0.6);">AVG LATENCY</div>
+          </div>
+          <div style="background:var(--bg-2);border:1px solid rgba(184,115,51,0.4);border-radius:4px;padding:6px;text-align:center;">
+            <div id="ms-avg-sim" style="font-size:1.1rem;color:#e8a060;font-weight:700;text-shadow:0 0 10px rgba(232,160,96,0.9),0 0 20px rgba(232,160,96,0.4);">—</div>
+            <div style="font-size:0.52rem;color:#ffb347;font-weight:700;letter-spacing:0.08em;text-shadow:0 0 8px rgba(255,179,71,1),0 0 16px rgba(255,179,71,0.6);">AVG SIMILARITY</div>
+          </div>
+          <div style="background:var(--bg-2);border:1px solid rgba(45,212,191,0.3);border-radius:4px;padding:6px;text-align:center;">
+            <div id="ms-clarif" style="font-size:1.1rem;color:var(--teal);font-weight:700;text-shadow:0 0 10px rgba(45,212,191,0.9),0 0 20px rgba(45,212,191,0.4);">0</div>
+            <div style="font-size:0.52rem;color:#2eecd4;font-weight:700;letter-spacing:0.08em;text-shadow:0 0 8px rgba(46,236,212,1),0 0 16px rgba(46,236,212,0.6);">CLARIF. NEEDED</div>
+          </div>
+        </div>
+      </div>
+      <!-- Metrics table -->
+      <div style="flex:1;overflow-y:auto;padding:8px;">
+        <table id="metrics-table" style="width:100%;border-collapse:collapse;font-size:0.58rem;">
+          <thead>
+            <tr style="color:#ffc93c;text-align:left;text-shadow:0 0 8px rgba(255,201,60,0.9);">
+              <th style="padding:4px 6px;border-bottom:1px solid rgba(255,201,60,0.25);font-weight:700;">Time</th>
+              <th style="padding:4px 6px;border-bottom:1px solid rgba(255,201,60,0.25);font-weight:700;">Query</th>
+              <th style="padding:4px 6px;border-bottom:1px solid rgba(255,201,60,0.25);font-weight:700;">Sim%</th>
+              <th style="padding:4px 6px;border-bottom:1px solid rgba(255,201,60,0.25);font-weight:700;">ms</th>
+              <th style="padding:4px 6px;border-bottom:1px solid rgba(255,201,60,0.25);font-weight:700;">Del</th>
+            </tr>
+          </thead>
+          <tbody id="metrics-tbody">
+            <tr><td colspan="5" style="padding:12px;color:var(--text-2);text-align:center;">No metrics yet.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </aside>
+</div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+// ── STATE ──────────────────────────────────────────────────────────────────
+const API_BASE = window.location.origin;
+// SECURITY: API_KEY is fetched at runtime from /api/config — never hardcoded here.
+let API_KEY = '';
+let currentMode = 'all';
+let currentCategory = 'report';
+let currentSourceScope = '';   // v6.1 (Issue #3): '' = all files, else exact source filename
+let isLoading = false;
+let allIndexedFiles = []; // local cache for filtering
+let currentDocFilter = 'all';
+
+// ── INIT ───────────────────────────────────────────────────────────────────
+async function initConfig() {
+  try {
+    const res = await fetch('/api/config');
+    if (res.ok) {
+      const cfg = await res.json();
+      API_KEY = cfg.api_key || '';
+    }
+  } catch (e) {
+    console.warn('Could not fetch /api/config — authenticated actions may fail.', e);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+  await initConfig();
+  fetchStats();
+  loadIndexedFiles();
+  loadMetrics();
+  setupDropZone();
+  document.getElementById('file-input').addEventListener('change', handleFileSelect);
+  setInterval(fetchStats, 30000);
+  setInterval(loadMetrics, 60000); // refresh metrics every minute
+});
+
+// ── RIGHT SIDEBAR EXPAND / COLLAPSE ───────────────────────────────────────
+let sidebarExpanded = false;
+function toggleSidebar() {
+  sidebarExpanded = !sidebarExpanded;
+  const sidebar = document.getElementById('sidebar-right');
+  const btn = document.getElementById('expand-btn');
+  const grid = document.querySelector('.main-grid');
+
+  if (sidebarExpanded) {
+    sidebar.classList.add('expanded');
+    grid.style.gridTemplateColumns = '280px 1fr 520px';
+    btn.textContent = '⇔ collapse';
+    btn.style.color = '#ffc93c';
+    btn.style.textShadow = '0 0 8px rgba(255,201,60,0.9)';
+  } else {
+    sidebar.classList.remove('expanded');
+    grid.style.gridTemplateColumns = '280px 1fr 300px';
+    btn.textContent = '⇔';
+    btn.style.color = 'var(--amber)';
+    btn.style.textShadow = '0 0 6px rgba(245,166,35,0.7)';
+  }
+}
+
+// ── RIGHT PANEL TAB SWITCHING ──────────────────────────────────────────────
+function switchRTab(tab, btn) {
+  document.querySelectorAll('.rpanel-tab').forEach(b => {
+    b.style.color = 'var(--text-1)';
+    b.style.borderBottom = '2px solid transparent';
+  });
+  btn.style.color = 'var(--amber)';
+  btn.style.borderBottom = '2px solid var(--amber)';
+
+  document.getElementById('rpanel-docs').style.display = tab === 'docs' ? 'flex' : 'none';
+  document.getElementById('rpanel-metrics').style.display = tab === 'metrics' ? 'flex' : 'none';
+
+  if (tab === 'metrics') loadMetrics();
+}
+
+// ── DOC TYPE FILTER ────────────────────────────────────────────────────────
+function filterDocType(dtype, btn) {
+  currentDocFilter = dtype;
+  document.querySelectorAll('.dtype-tab').forEach(b => {
+    b.style.background = 'rgba(45,212,191,0.08)';
+    b.style.border = '1px solid rgba(45,212,191,0.4)';
+    b.style.color = '#2eecd4';
+  });
+  btn.style.background = 'var(--amber-dim)';
+  btn.style.border = '1px solid #ffc93c';
+  btn.style.color = '#ffc93c';
+  renderDocList();
+}
+
+// v6.1 (Issue #3): keep the "Search Scope" dropdown in sync with whatever
+// files are actually indexed, so the user can pin a query to exactly one
+// dataset/report. The selected value is sent as `source_filter` and the
+// backend hard-filters retrieval to that file at the database level.
+function refreshScopeOptions() {
+  const sel = document.getElementById('source-scope-select');
+  if (!sel) return;
+  const previousValue = sel.value;
+  sel.innerHTML = '<option value="">🌐 All Files (no scope)</option>';
+  allIndexedFiles.forEach(f => {
+    const opt = document.createElement('option');
+    opt.value = f.source;
+    opt.textContent = `📄 ${f.source}`;
+    sel.appendChild(opt);
+  });
+  // Keep the previous selection if that file is still indexed, else reset.
+  if (allIndexedFiles.some(f => f.source === previousValue)) {
+    sel.value = previousValue;
+    currentSourceScope = previousValue;
+  } else {
+    sel.value = '';
+    currentSourceScope = '';
+  }
+}
+
+function onScopeChange(sel) {
+  currentSourceScope = sel.value;
+  showToast(
+    currentSourceScope
+      ? `Search scoped to: ${currentSourceScope}`
+      : 'Search scope reset to all files',
+    'success'
+  );
+}
+
+function renderDocList() {
+  const historyEl = document.getElementById('upload-history');
+  const noFilesMsg = document.getElementById('no-files-msg');
+  // Remove existing items (keep the no-files msg)
+  historyEl.querySelectorAll('.history-item').forEach(el => el.remove());
+
+  const filtered = currentDocFilter === 'all'
+    ? allIndexedFiles
+    : allIndexedFiles.filter(f => {
+        const ext = f.source.split('.').pop().toLowerCase();
+        return ext === currentDocFilter;
+      });
+
+  document.getElementById('doc-count-badge').textContent = `${filtered.length} file${filtered.length !== 1 ? 's' : ''}`;
+
+  if (filtered.length === 0) {
+    if (noFilesMsg) noFilesMsg.style.display = '';
+    return;
+  }
+  if (noFilesMsg) noFilesMsg.style.display = 'none';
+
+  const icons = { report: '📄', dataset: '📊' };
+  filtered.forEach(f => {
+    const ext = f.source.split('.').pop().toLowerCase();
+    const icon = ext === 'pdf' ? '📄' : ext === 'csv' ? '📊' : ext === 'json' ? '🗂️' : icons[f.category] || '📄';
+    const item = document.createElement('div');
+    item.className = 'history-item';
+    item.dataset.source = f.source;
+    item.dataset.category = f.category;
+    item.innerHTML = `
+      <span class="file-icon">${icon}</span>
+      <div class="file-info">
+        <div class="file-name" title="${f.source}">${f.source}</div>
+        <div class="file-meta">${f.category} · <span style="color:var(--amber);text-shadow:0 0 6px rgba(245,166,35,0.7);font-weight:700;">${f.chunk_count ?? '?'} chunks</span></div>
+      </div>
+      <button class="del-btn" title="Remove from index" onclick="deleteDocument('${f.source}','${f.category}',this.closest('.history-item'))">🗑</button>`;
+    historyEl.appendChild(item);
+  });
+}
+
+// ── MODE & CATEGORY SELECTION ──────────────────────────────────────────────
+function selectMode(mode, btn) {
+  currentMode = mode;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('mode-label').textContent = `MODE: ${mode.toUpperCase()}`;
+}
+
+function selectCategory(cat, btn) {
+  currentCategory = cat;
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// ── QUERY ──────────────────────────────────────────────────────────────────
+function setQuery(text) {
+  const input = document.getElementById('query-input');
+  input.value = text;
+  autoResize(input);
+  input.focus();
+}
+
+function handleKeyDown(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendQuery(); }
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+async function sendQuery() {
+  const input = document.getElementById('query-input');
+  const query = input.value.trim();
+  if (!query || isLoading) return;
+
+  isLoading = true;
+  document.getElementById('send-btn').disabled = true;
+  document.getElementById('empty-state')?.remove();
+
+  appendMessage('user', query);
+  input.value = '';
+  autoResize(input);
+
+  const thinkingId = appendThinking();
+
+  try {
+    const res = await fetch(`${API_BASE}/api/query/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        query,
+        query_type: currentMode,
+        top_k: 20,
+        source_filter: currentSourceScope || null,
+      }),
+    });
+
+    if (!res.ok) throw new Error(`Server error ${res.status}`);
+    const data = await res.json();
+
+    removeThinking(thinkingId);
+    appendAIMessage(data);
+
+    // Refresh metrics after each query
+    setTimeout(loadMetrics, 1500);
+
+  } catch (err) {
+    removeThinking(thinkingId);
+    appendMessage('ai', `⚠ Error: ${err.message}. Make sure the backend is running and your API key is set.`);
+    showToast('Query failed: ' + err.message, 'error');
+  } finally {
+    isLoading = false;
+    document.getElementById('send-btn').disabled = false;
+  }
+}
+
+function appendMessage(role, text) {
+  const chatArea = document.getElementById('chat-area');
+  const div = document.createElement('div');
+  div.className = `message ${role}`;
+  const avatar = role === 'user' ? 'ME' : '⬡';
+  const avatarClass = role === 'user' ? 'user' : 'ai';
+  div.innerHTML = `
+    <div class="msg-avatar ${avatarClass}">${avatar}</div>
+    <div class="msg-bubble">
+      <div class="msg-meta" style="color: #ffffff; font-weight: 700;" >${role === 'user' ? 'Mining Engineer' : 'MEIS Intelligence'} · ${timestamp()}</div>
+      <div>${escapeHtml(text)}</div>
+    </div>`;
+  chatArea.appendChild(div);
+  chatArea.scrollTop = chatArea.scrollHeight;
+}
+
+function appendAIMessage(data) {
+  const chatArea = document.getElementById('chat-area');
+  const div = document.createElement('div');
+  div.className = 'message ai';
+
+  // Build sources HTML — show similarity % prominently
+  const sourcesHtml = data.sources && data.sources.length > 0
+    ? `<div class="msg-sources" style="color: #ffffff; font-weight: 700; margin-top:8px;">
+        ${data.sources.map(s => {
+          const simPct = (s.similarity * 100).toFixed(0);
+          const simColor = s.similarity >= 0.6 ? 'var(--teal)' : s.similarity >= 0.35 ? 'var(--amber)' : 'var(--red)';
+          return `
+          <div class="source-chip" style="margin-bottom:4px;">
+            📄 <span style="color: #ffffff; font-weight: 700;">${s.source}</span>
+            <span style="color: var(--text-1);font-size:0.6rem;">${s.doc_type}</span>
+            ${(s.section && s.section !== 'Unknown') ? `<span style="color: var(--text-2);font-size:0.6rem;">${s.section}</span>` : ''}
+            ${(s.page && s.page !== 'not specified') ? `<span style="color: var(--text-2);font-size:0.6rem;">p.${s.page}</span>` : ''}
+            <span class="score" style="color:${simColor};font-weight:700;">${simPct}%</span>
+          </div>`;
+        }).join('')}
+       </div>`
+    : '';
+
+  // Clarifying questions (dropdown-style) when query was ambiguous
+  let clarifHtml = '';
+  if (data.needs_clarification && data.clarifying_questions && data.clarifying_questions.length > 0) {
+    clarifHtml = `
+      <div class="clarif-box" style="margin-top:12px;border:1px solid var(--amber);border-radius:6px;padding:10px;background:var(--amber-glow);">
+        <div style="font-size:0.65rem;color:var(--amber);font-weight:700;margin-bottom:8px;">
+          💡 To refine this answer, could you clarify:
+        </div>
+        ${data.clarifying_questions.map((q, i) => `
+          <button onclick="setQuery(this.dataset.q)" data-q="${escapeAttr(q)}"
+            style="display:block;width:100%;text-align:left;background:var(--bg-2);border:1px solid var(--border);
+                   border-radius:4px;color:var(--text-0);cursor:pointer;font-family:var(--font-mono);
+                   font-size:0.65rem;padding:6px 10px;margin-bottom:5px;transition:all 0.15s;">
+            ${i+1}. ${escapeHtml(q)}
+          </button>`).join('')}
+        <textarea id="custom-clarif" placeholder="Or type your own clarification…"
+          style="width:100%;background:var(--bg-2);border:1px solid var(--border);border-radius:4px;
+                 color:var(--text-0);font-family:var(--font-mono);font-size:0.65rem;padding:6px 10px;
+                 margin-top:4px;resize:vertical;min-height:50px;"></textarea>
+        <button onclick="sendCustomClarif()" style="margin-top:5px;background:var(--amber-dim);border:1px solid var(--amber);
+                border-radius:4px;color:var(--amber);font-family:var(--font-mono);font-size:0.65rem;
+                font-weight:700;padding:5px 12px;cursor:pointer;">Send →</button>
+      </div>`;
+  }
+
+  const formattedAnswer = formatAnswer(data.answer);
+
+  div.innerHTML = `
+    <div class="msg-avatar ai">⬡</div>
+    <div class="msg-bubble">
+      <div class="msg-meta" style="color: #ffffff; font-weight: 700;">MEIS Intelligence · ${timestamp()} · ${data.chunks_retrieved} sections · model: ${data.model || 'llm'}</div>
+      <div>${formattedAnswer}</div>
+      ${sourcesHtml}
+      ${clarifHtml}
+    </div>`;
+  chatArea.appendChild(div);
+  chatArea.scrollTop = chatArea.scrollHeight;
+}
+
+function sendCustomClarif() {
+  const el = document.getElementById('custom-clarif');
+  if (el && el.value.trim()) {
+    setQuery(el.value.trim());
+    sendQuery();
+  }
+}
+
+function escapeAttr(text) {
+  return text.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+function formatAnswer(text) {
+  // Clean up ugly source citation artifacts before rendering
+  text = text
+    .replace(/\s*\|\s*Section:\s*Unknown/g, '')
+    .replace(/\s*│\s*Section:\s*Unknown/g, '')
+    .replace(/\s*\|\s*Page:\s*not specified/gi, '')
+    .replace(/\s*│\s*Page:\s*not specified/gi, '')
+    .replace(/\n?Page:\s*not specified/gi, '')
+    .replace(/\s*\|\s*Page:\s*N\/A/gi, '')
+    .replace(/\n?Page:\s*N\/A/gi, '')
+    .replace(/\s*\|\s*Page:\s*none/gi, '')
+    .replace(/\n?Page:\s*none/gi, '')
+    .replace(/\s*\|\s*Relevance:\s*[\d.]+/g, '');
+
+
+  // Markdown-like formatting for geological reports
+  return escapeHtml(text)
+    .replace(/\*\*(.*?)\*\*/g, '<strong style="color:var(--amber)">$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/`(.*?)`/g, '<code style="background:var(--bg-3);padding:1px 6px;border-radius:3px;font-size:0.9em">$1</code>')
+    .replace(/\|(.+)\|/g, (match) => {
+      // Basic table rendering
+      const cells = match.split('|').filter(c => c.trim());
+      return '<span style="display:block;font-family:var(--font-mono);font-size:0.8em;border-bottom:1px solid var(--border);padding:2px 0;">' + cells.join(' │ ') + '</span>';
+    })
+    .replace(/\n\n/g, '<br><br>')
+    .replace(/\n/g, '<br>')
+    .replace(/#{1,3}\s(.+)/g, '<strong style="color:var(--teal);display:block;margin:8px 0 4px">$1</strong>');
+}
+
+function appendThinking() {
+  const id = 'thinking-' + Date.now();
+  const chatArea = document.getElementById('chat-area');
+  const div = document.createElement('div');
+  div.className = 'message ai';
+  div.id = id;
+  div.innerHTML = `
+    <div class="msg-avatar ai">⬡</div>
+    <div class="thinking-dots">
+      <span></span><span></span><span></span>
+    </div>`;
+  chatArea.appendChild(div);
+  chatArea.scrollTop = chatArea.scrollHeight;
+  return id;
+}
+
+function removeThinking(id) {
+  document.getElementById(id)?.remove();
+}
+
+// ── FILE UPLOAD ────────────────────────────────────────────────────────────
+function setupDropZone() {
+  const zone = document.getElementById('drop-zone');
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.classList.remove('dragover');
+    const files = e.dataTransfer.files;
+    if (files.length) handleFile(files[0]);
+  });
+}
+
+function handleFileSelect(e) {
+  if (e.target.files.length) handleFile(e.target.files[0]);
+}
+
+async function handleFile(file) {
+  const progress = document.getElementById('upload-progress');
+  progress.style.width = '30%';
+
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('category', currentCategory);
+
+  try {
+    progress.style.width = '60%';
+    const res = await fetch(`${API_BASE}/api/ingest/upload`, {
+      method: 'POST',
+      headers: { 'X-API-Key': API_KEY },
+      body: formData,
+    });
+
+    progress.style.width = '100%';
+
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.detail || `Upload failed ${res.status}`);
+    }
+
+    const data = await res.json();
+    showToast(`✓ ${data.file_name} ingested — ${data.chunks_added} chunks`, 'success');
+    await loadIndexedFiles();
+    await fetchStats();
+
+  } catch (err) {
+    showToast('Upload failed: ' + err.message, 'error');
+  } finally {
+    setTimeout(() => { progress.style.width = '0%'; }, 600);
+    document.getElementById('file-input').value = '';
+  }
+}
+
+// ── STATS ──────────────────────────────────────────────────────────────────
+async function fetchStats() {
+  try {
+    const res = await fetch(`${API_BASE}/api/ingest/stats`);
+    if (!res.ok) return;
+    const data = await res.json();
+
+    const geo = data.collections.find(c => c.collection_name.includes('geological'))?.document_count || 0;
+    const min = data.collections.find(c => c.collection_name.includes('mineral'))?.document_count || 0;
+    const total = data.total_documents;
+    const maxCount = Math.max(geo, min, 1);
+
+    document.getElementById('geo-count').textContent = geo;
+    document.getElementById('min-count').textContent = min;
+    document.getElementById('geo-bar').style.width = `${(geo/maxCount)*100}%`;
+    document.getElementById('min-bar').style.width = `${(min/maxCount)*100}%`;
+    document.getElementById('total-docs-chip').textContent = `⬡ ${total} Chunks`;
+
+  } catch (_) { /* backend not running */ }
+}
+
+// ── LOAD INDEXED FILES ───────────────────────────────────────────────────────
+async function loadIndexedFiles() {
+  try {
+    const res = await fetch(`${API_BASE}/api/ingest/files`);
+    if (!res.ok) return;
+    const data = await res.json();
+    allIndexedFiles = data.files || [];
+    renderDocList();
+    refreshScopeOptions();
+  } catch (_) { /* backend not running */ }
+}
+
+// ── DELETE DOCUMENT ─────────────────────────────────────────────────────────
+async function deleteDocument(sourceName, category, itemEl) {
+  if (!confirm(`Remove "${sourceName}" from the index?\nThis cannot be undone.`)) return;
+
+  try {
+    const params = new URLSearchParams({ source_name: sourceName, category });
+    const res = await fetch(`${API_BASE}/api/ingest/document?${params}`, {
+      method: 'DELETE',
+      headers: { 'X-API-Key': API_KEY },
+    });
+    const data = await res.json();
+
+    if (res.ok && data.success) {
+      // Remove from local cache & re-render
+      allIndexedFiles = allIndexedFiles.filter(f => f.source !== sourceName);
+      renderDocList();
+      refreshScopeOptions();
+      showToast(`Removed ${data.chunks_deleted} chunks for "${sourceName}"`, 'success');
+      fetchStats();
+    } else {
+      showToast(data.detail || 'Delete failed', 'error');
+    }
+  } catch (err) {
+    showToast('Network error during delete', 'error');
+  }
+}
+
+// ── DELETE ALL BY FILE TYPE ──────────────────────────────────────────────────
+async function deleteAllByType(fileType) {
+  const count = allIndexedFiles.filter(f => f.source.split('.').pop().toLowerCase() === fileType).length;
+  if (count === 0) { showToast(`No .${fileType} files in index`, 'error'); return; }
+  if (!confirm(`Delete ALL ${count} .${fileType} file(s) and their chunks?\nThis cannot be undone.`)) return;
+
+  try {
+    const res = await fetch(`${API_BASE}/api/ingest/by-type/${fileType}`, {
+      method: 'DELETE',
+      headers: { 'X-API-Key': API_KEY },
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      allIndexedFiles = allIndexedFiles.filter(f => f.source.split('.').pop().toLowerCase() !== fileType);
+      renderDocList();
+      refreshScopeOptions();
+      fetchStats();
+      showToast(`Deleted ${data.files_count} .${fileType} file(s) — ${data.chunks_deleted} chunks removed`, 'success');
+    } else {
+      showToast(data.detail || `Failed to delete .${fileType} files`, 'error');
+    }
+  } catch (err) {
+    showToast('Network error during bulk delete', 'error');
+  }
+}
+
+// ── METRICS ─────────────────────────────────────────────────────────────────
+async function loadMetrics() {
+  try {
+    const res = await fetch(`${API_BASE}/api/query/metrics-history?limit=50`);
+    if (!res.ok) return;
+    const data = await res.json();
+    renderMetrics(data.metrics || []);
+  } catch (_) { /* backend not running */ }
+}
+
+function renderMetrics(metrics) {
+  // Summary stats
+  document.getElementById('ms-total').textContent = metrics.length;
+
+  if (metrics.length > 0) {
+    const avgLat = metrics.reduce((s, m) => s + (m.latency_ms || 0), 0) / metrics.length;
+    const avgSim = metrics.reduce((s, m) => s + (m.top_similarity || 0), 0) / metrics.length;
+    const clarifCount = metrics.filter(m => m.needs_clarification).length;
+    document.getElementById('ms-avg-lat').textContent = avgLat.toFixed(0) + 'ms';
+    document.getElementById('ms-avg-sim').textContent = (avgSim * 100).toFixed(0) + '%';
+    document.getElementById('ms-clarif').textContent = clarifCount;
+  } else {
+    document.getElementById('ms-avg-lat').textContent = '—';
+    document.getElementById('ms-avg-sim').textContent = '—';
+    document.getElementById('ms-clarif').textContent = '0';
+  }
+
+  // Table
+  const tbody = document.getElementById('metrics-tbody');
+  if (!metrics.length) {
+    tbody.innerHTML = '<tr><td colspan="5" style="padding:12px;color:var(--text-2);text-align:center;">No metrics yet. Run a query.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = metrics.map(m => {
+    const time = m.timestamp ? m.timestamp.replace('T',' ').replace('Z','').slice(11,19) : '—';
+    const simPct = m.top_similarity != null ? (m.top_similarity * 100).toFixed(0) + '%' : '—';
+    const simColor = m.top_similarity >= 0.6 ? 'var(--teal)' : m.top_similarity >= 0.35 ? 'var(--amber)' : 'var(--red)';
+    const simGlow = m.top_similarity >= 0.6 ? 'rgba(45,212,191,0.8)' : m.top_similarity >= 0.35 ? 'rgba(245,166,35,0.8)' : 'rgba(239,68,68,0.8)';
+    const lat = m.latency_ms != null ? m.latency_ms.toFixed(0) : '—';
+    const qShort = (m.query || '').slice(0, 28) + ((m.query || '').length > 28 ? '…' : '');
+    return `<tr style="border-bottom:1px solid rgba(245,166,35,0.1);">
+      <td style="padding:4px 6px;color:#ffc93c;font-size:0.55rem;font-weight:700;text-shadow:0 0 6px rgba(255,201,60,0.8);">${time}</td>
+      <td style="padding:4px 6px;color:#f0ead6;" title="${escapeAttr(m.query || '')}">${escapeHtml(qShort)}</td>
+      <td style="padding:4px 6px;color:${simColor};font-weight:700;text-shadow:0 0 6px ${simGlow};">${simPct}</td>
+      <td style="padding:4px 6px;color:#2eecd4;font-weight:700;text-shadow:0 0 6px rgba(46,236,212,0.8);">${lat}</td>
+      <td style="padding:4px 6px;">
+        <button onclick="deleteMetricRow(${m.id},this.closest('tr'))" style="background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.6);border-radius:3px;color:#ff6b6b;cursor:pointer;font-size:0.8rem;padding:2px 6px;text-shadow:0 0 8px rgba(255,107,107,1);box-shadow:0 0 6px rgba(239,68,68,0.3);" title="Delete">🗑</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+async function deleteMetricRow(id, rowEl) {
+  try {
+    const res = await fetch(`${API_BASE}/api/query/metrics-history/${id}`, { method: 'DELETE' });
+    if (res.ok) {
+      rowEl.style.opacity = '0';
+      setTimeout(() => { rowEl.remove(); loadMetrics(); }, 300);
+    }
+  } catch (_) {}
+}
+
+async function clearAllMetrics() {
+  if (!confirm('Clear ALL query metrics? This cannot be undone.')) return;
+  try {
+    await fetch(`${API_BASE}/api/query/metrics-history`, { method: 'DELETE' });
+    loadMetrics();
+    showToast('All metrics cleared', 'success');
+  } catch (_) { showToast('Clear failed', 'error'); }
+}
+
+// ── MOBILE NAV ────────────────────────────────────────────────────────────
+let activeMobileTab = 'chat';
+function mobileTab(tab) {
+  activeMobileTab = tab;
+  // Reset all nav buttons
+  ['chat','upload','stats'].forEach(t => {
+    document.getElementById('mnav-' + t).classList.remove('active');
+  });
+  document.getElementById('mnav-' + tab).classList.add('active');
+
+  // Close all drawers
+  document.querySelectorAll('.mobile-drawer').forEach(d => d.classList.remove('open'));
+
+  if (tab === 'upload') {
+    document.getElementById('mobile-drawer-upload').classList.add('open');
+  } else if (tab === 'stats') {
+    document.getElementById('mobile-drawer-stats').classList.add('open');
+    // Sync stats to mobile panels
+    const gc = document.getElementById('geo-count');
+    const mc = document.getElementById('min-count');
+    if (gc) document.getElementById('geo-count-m').textContent = gc.textContent;
+    if (mc) document.getElementById('min-count-m').textContent = mc.textContent;
+  }
+  // tab === 'chat' → drawers closed, main panel visible
+}
+
+function mobileQuery(q) {
+  // close drawer, go to chat, fill query
+  mobileTab('chat');
+  setQuery(q);
+}
+
+// Wire up mobile file input
+document.addEventListener('DOMContentLoaded', () => {
+  const mobileInput = document.getElementById('file-input-mobile');
+  if (mobileInput) {
+    mobileInput.addEventListener('change', handleFileSelect);
+  }
+});
+
+function showToast(message, type = 'info') {
+  const toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.className = `show ${type}`;
+  setTimeout(() => { toast.className = ''; }, 4000);
+}
+
+function escapeHtml(text) {
+  return (text || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function timestamp() {
+  return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+</script>
+</body>
+</html>

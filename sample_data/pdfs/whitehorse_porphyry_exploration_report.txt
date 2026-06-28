@@ -1,0 +1,79 @@
+GEOLOGICAL EXPLORATION REPORT
+Whitehorse Porphyry Copper-Gold Deposit
+
+Executive Summary
+
+The Whitehorse prospect represents a mid-stage porphyry Cu-Au system with
+multiple alteration zones and significant geochemical anomalies. Preliminary
+drilling to 40 meters depth has intersected potassic and phyllic alteration
+zones with elevated copper (up to 3,456 ppm) and gold (up to 1.56 ppm) grades.
+
+Regional Geology
+
+The Whitehorse property is located within the Tertiary porphyry belt,
+characterized by calc-alkaline granitic intrusions of Eocene age. Host
+rocks include Cretaceous meta-sediments and Paleozoic schists intruded
+by multiple phases of granodiorite and granite porphyries.
+
+Mineralization
+
+Four main alteration zones have been defined:
+
+1. Oxide Zone (0-15m depth)
+   - Propylitic alteration (chlorite, epidote, calcite)
+   - Low Cu-Au grades (Cu: 45-95 ppm; Au: 0.01-0.05 ppm)
+   - Iron oxide staining visible in hand specimen
+
+2. Transition Zone (15-25m depth)
+   - Phyllic alteration (sericite, quartz, pyrite)
+   - Elevated Cu-Au grades (Cu: 145-325 ppm; Au: 0.08-0.18 ppm)
+   - Moderate disseminated sulfides
+
+3. Primary Zone (25-40m depth)
+   - Potassic alteration (feldspar + biotite + magnetite)
+   - High Cu-Au grades (Cu: 1,050-3,456 ppm; Au: 0.68-1.56 ppm)
+   - Dense disseminated to stockwork chalcopyrite, bornite
+
+4. Deep Primary (>40m depth)
+   - Phyllic transitional (quartz + sericite)
+   - Moderate grades, approaching potassic core
+
+Geochemical Results
+
+Soil geochemical survey of 1,000 samples across 8 km2 defined an anomalous Cu
+halo (>300 ppm) covering 2.5 km2 and centered on drill area. Au soil values
+reached 125 ppb in peak area. Mo, As, Sb accompany Cu-Au anomalies,
+characteristic of porphyry systems. Background Cu is 32 ppm, Au is 6 ppb.
+
+Structural Geology
+
+The deposit occurs at the intersection of two regional fault sets:
+- NW-trending fault (steep, dextral sense of movement)
+- ENE-trending fault (moderate dip, sinistral sense of movement)
+
+This intersection appears to have focused intrusion and mineralization,
+creating a structural trap for fluid flow and ore deposition.
+
+Resource Estimation
+
+Preliminary inferred resource (kriged from 4 drill holes):
+- Volume: 85 million tonnes
+- Average Cu grade: 0.35% (0.25-0.45% credible interval)
+- Average Au grade: 0.28 g/t (0.18-0.38 g/t credible interval)
+- Contained Cu: 295,000 tonnes
+- Contained Au: 24,000 kg (770,000 oz)
+
+Recommendations
+
+1. Extend drill grid to define strike and dip of mineralization
+2. Acquire deep IP/resistivity survey to test for deeper potassic cores
+3. Geological mapping to trace fault controls at surface
+4. Bulk sample from potassic zone for metallurgical testing
+5. Stream sediment survey in peripheral drainages to detect hidden extensions
+
+Conclusion
+
+Whitehorse shows all hallmarks of a significant Cu-Au porphyry system.
+The intersection of regional structures, presence of high-grade zones at
+shallow depth, and extensive surface and subsurface geochemical anomalies
+warrant progression to pre-feasibility stage exploration.

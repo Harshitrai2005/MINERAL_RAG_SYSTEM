@@ -1,0 +1,75 @@
+{
+  "project": "Mount Centauri Porphyry Project",
+  "survey_date": "2024-06",
+  "prepared_by": "Sierra Exploration Ltd.",
+  "coordinate_system": "UTM Zone 19S WGS84",
+  "mineral_zones": [
+    {
+      "zone_id": "MZ-001",
+      "name": "Central Potassic Core",
+      "type": "porphyry_cu_au",
+      "alteration": "potassic",
+      "dimensions_m": {"strike_length": 850, "down_dip": 600, "avg_width": 280},
+      "grades": {"Au_g_t": 2.85, "Cu_pct": 0.39, "Mo_ppm": 95},
+      "best_intercept": {"drill_hole": "DH-002", "Au_g_t": 6.89, "Cu_pct": 0.72, "from_m": 25, "to_m": 45},
+      "status": "resource_defined",
+      "priority": "HIGH",
+      "resource_estimate": {"tonnes_Mt": 185, "Au_koz": 2500, "Cu_kt": 703, "classification": "Inferred"}
+    },
+    {
+      "zone_id": "MZ-002",
+      "name": "Northwest Epithermal Corridor",
+      "type": "high_sulphidation_epithermal",
+      "alteration": "advanced_argillic",
+      "dimensions_m": {"strike_length": 400, "down_dip": 300, "avg_width": 35},
+      "grades": {"Au_g_t": 12.4, "Ag_g_t": 92.5, "As_ppm": 2850},
+      "best_intercept": {"drill_hole": "DH-007", "Au_g_t": 18.6, "Ag_g_t": 142.3, "from_m": 12, "to_m": 28},
+      "status": "drill_target",
+      "priority": "HIGH",
+      "pathfinders": ["As", "Sb", "Te", "Au", "Ag"]
+    },
+    {
+      "zone_id": "MZ-003",
+      "name": "Phyllic Intermediate Zone",
+      "type": "porphyry_cu",
+      "alteration": "phyllic",
+      "dimensions_m": {"strike_length": 1200, "down_dip": 450, "avg_width": 180},
+      "grades": {"Au_g_t": 0.18, "Cu_pct": 0.22, "Mo_ppm": 28},
+      "status": "exploration",
+      "priority": "MEDIUM"
+    },
+    {
+      "zone_id": "MZ-004",
+      "name": "Southern Argillic Fringe",
+      "type": "argillic_alteration",
+      "alteration": "argillic",
+      "dimensions_m": {"strike_length": 650, "down_dip": 200, "avg_width": 120},
+      "grades": {"Au_g_t": 0.05, "Cu_pct": 0.08},
+      "status": "reconnaissance",
+      "priority": "LOW"
+    },
+    {
+      "zone_id": "MZ-005",
+      "name": "Deep Skarn Zone",
+      "type": "skarn",
+      "alteration": "calc_silicate",
+      "dimensions_m": {"strike_length": 320, "down_dip": 280, "avg_width": 45},
+      "grades": {"Au_g_t": 1.85, "Cu_pct": 0.55, "Zn_pct": 1.2, "Pb_ppm": 850},
+      "status": "drill_target",
+      "priority": "MEDIUM",
+      "notes": "Coincident IP chargeability anomaly. Requires step-out drilling."
+    }
+  ],
+  "structural_controls": [
+    {"orientation": "NNW-trending", "dip": 78, "dip_direction": "NW", "description": "Main fault corridor — controls hydrothermal fluid pathways"},
+    {"orientation": "NE-trending", "dip": 65, "dip_direction": "SE", "description": "Secondary tensional fractures — host quartz-sulphide veins"}
+  ],
+  "geophysics": {
+    "methods_completed": ["IP-resistivity", "magnetic", "gravity"],
+    "anomalies": [
+      {"type": "IP_chargeability", "zone": "MZ-001", "value_msec": 45, "interpretation": "disseminated sulphides"},
+      {"type": "magnetic_low", "zone": "MZ-001", "interpretation": "magnetite destruction in phyllic overprint"},
+      {"type": "gravity_high", "zone": "MZ-005", "interpretation": "dense skarn mineralisation"}
+    ]
+  }
+}
