@@ -20,9 +20,7 @@ services:
       - key: LLM_PROVIDER
         value: groq
       - key: GROQ_API_KEY
-        sync: false          # set in Render dashboard (secret)
-      - key: OPENAI_API_KEY
-        sync: false          # optional fallback
+        sync: false          # set in Render dashboard (secret)         # optional fallback
       - key: API_KEY
         sync: false          # set in Render dashboard (secret)
       - key: VECTOR_BACKEND
